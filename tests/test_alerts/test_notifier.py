@@ -26,6 +26,12 @@ class TestAlertNotifier:
                 "webhook": {"url": "http://example.com/webhook", "enabled": True},
             }
         )
+        self.telegram_only = AlertNotifier(
+            {
+                "telegram": {"bot_token": "tg_test", "chat_id": "999", "enabled": True},
+                "webhook": {"enabled": False},
+            }
+        )
 
     def _make_alert(self) -> Alert:
         return Alert(
@@ -81,3 +87,38 @@ class TestAlertNotifier:
         )
         result = await notifier.notify(self._make_alert())
         assert result == {"telegram": False, "webhook": False}
+
+    @pytest.mark.asyncio
+    async def test_send_telegram_success(self):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_client = _mock_async_client(post_return=mock_resp)
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await self.telegram_only.send_telegram(self._make_alert())
+            assert result is True
+
+    @pytest.mark.asyncio
+    async def test_send_telegram_network_error(self):
+        mock_client = _mock_async_client()
+        mock_client.post.side_effect = Exception("Telegram API error")
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await self.telegram_only.send_telegram(self._make_alert())
+            assert result is False
+
+    @pytest.mark.asyncio
+    async def test_send_telegram_missing_chat_id(self):
+        notifier = AlertNotifier({"telegram": {"bot_token": "test", "chat_id": ""}})
+        result = await notifier.send_telegram(self._make_alert())
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_send_webhook_non_200(self):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+        mock_client = _mock_async_client(post_return=mock_resp)
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await self.notifier.send_webhook(self._make_alert())
+            assert result is False

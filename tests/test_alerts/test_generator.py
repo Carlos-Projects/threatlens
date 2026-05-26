@@ -86,3 +86,30 @@ class TestAlertGenerator:
         alerts = self.generator.generate([event])
         if alerts:
             assert alerts[0].severity == Severity.CRITICAL
+
+    def test_generate_from_signals_only(self):
+        signals = [_make_signal(f"s{i}", category=AttackCategory.INJECTION) for i in range(5)]
+        alerts = self.generator.generate([], signals=signals)
+        injection_alerts = [a for a in alerts if "prompt-injection" in a.title]
+        assert len(injection_alerts) >= 1
+        assert injection_alerts[0].severity == Severity.HIGH
+
+    def test_multi_source_rule_not_enough_sources(self):
+        sig = _make_signal("single", category=AttackCategory.INJECTION)
+        event = CorrelatedEvent(
+            id="corr-4",
+            signals=[sig],
+            correlation_type="same_category",
+            correlation_score=30.0,
+            title="Single source",
+            description="",
+            severity=Severity.MEDIUM,
+        )
+        alerts = self.generator.generate([event])
+        multi = [a for a in alerts if "multi-source" in a.title]
+        assert len(multi) == 0
+
+    def test_signals_only_below_threshold(self):
+        signals = [_make_signal("solo", category=AttackCategory.INJECTION)]
+        alerts = self.generator.generate([], signals=signals)
+        assert all("prompt-injection" not in a.title for a in alerts)
