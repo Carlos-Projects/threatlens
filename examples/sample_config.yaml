@@ -1,0 +1,61 @@
+# ThreatLens Sample Configuration
+database:
+  path: ~/.threatlens/threatlens.db
+
+sources:
+  mcpguard:
+    enabled: true
+    url: http://localhost:8081
+  mcpwn:
+    enabled: true
+    results_dir: ~/.mcpwn/results
+  palisade:
+    enabled: true
+    url: http://localhost:8082
+  agentgate:
+    enabled: true
+    log_path: /var/log/agentgate/access.log
+  abliterate:
+    enabled: true
+    scan_dir: ~/.reverse-abliterate/scans
+  external:
+    enabled: true
+    nvd_api_key: ""
+
+enrichment:
+  cve:
+    enabled: true
+    nvd_api_key: ""
+  atlas:
+    enabled: true
+  advisories:
+    enabled: true
+
+alerts:
+  rules:
+    - name: critical-rce
+      severity: critical
+      correlation_min: 2
+      notify: [email, telegram]
+    - name: multi-source-campaign
+      severity: high
+      min_sources: 2
+      min_signals: 3
+    - name: prompt-injection-wave
+      severity: high
+      categories: [injection, jailbreak]
+      min_signals: 3
+  notifiers:
+    telegram:
+      bot_token: ""
+      chat_id: ""
+      enabled: false
+    webhook:
+      url: ""
+      enabled: false
+
+reports:
+  schedule:
+    daily: true
+    weekly: true
+    monthly: true

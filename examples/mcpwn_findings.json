@@ -1,0 +1,28 @@
+[
+  {
+    "attack_type": "command_injection",
+    "severity": "critical",
+    "title": "Command Injection via tool arguments",
+    "description": "Found command injection vulnerability in code_executor tool",
+    "target": "/tools/code_executor",
+    "detail": "Payload: ; cat /etc/shadow",
+    "recommendation": "Sanitize tool arguments, implement allowlist",
+    "evidence": {
+      "payload": "; cat /etc/shadow",
+      "response_preview": "root:xxxxxxxx:....."
+    }
+  },
+  {
+    "attack_type": "ssrf",
+    "severity": "high",
+    "title": "SSRF via data ingestion tool",
+    "description": "Server-side request forgery in data_fetch tool",
+    "target": "/tools/data_fetch",
+    "detail": "Payload: http://169.254.169.254/latest/meta-data/",
+    "recommendation": "Restrict outbound URLs, use allowlist",
+    "evidence": {
+      "payload": "http://169.254.169.254/latest/meta-data/",
+      "response_preview": "ami-id: ami-xxxx"
+    }
+  }
+]

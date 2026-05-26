@@ -1,0 +1,20 @@
+{% if signals %}
+<table class="table w-full">
+    <thead>
+        <tr><th class="px-4 py-2">Source</th><th class="px-4 py-2">Severity</th><th class="px-4 py-2">Category</th><th class="px-4 py-2">Title</th><th class="px-4 py-2">Timestamp</th></tr>
+    </thead>
+    <tbody>
+        {% for s in signals %}
+        <tr>
+            <td class="px-4 py-2">{{ s.source }}</td>
+            <td class="px-4 py-2"><span class="badge badge-{{ s.severity }}">{{ s.severity }}</span></td>
+            <td class="px-4 py-2">{{ s.category }}</td>
+            <td class="px-4 py-2">{{ s.title[:60] }}</td>
+            <td class="px-4 py-2 text-sm text-gray-400">{{ s.timestamp[:19] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-gray-400 text-center py-8">No signals found.</p>
+{% endif %}

@@ -1,0 +1,18 @@
+{% if alerts %}
+<div class="grid gap-4">
+    {% for a in alerts %}
+    <div class="card bg-base-200 shadow-xl mb-4">
+        <div class="card-body">
+            <h3 class="card-title text-{{ a.severity }}">{{ a.title[:80] }}</h3>
+            <p class="text-sm text-gray-400">{{ a.description[:200] }}</p>
+            <div class="flex gap-2 mt-2">
+                <span class="badge badge-{{ a.severity }}">{{ a.severity }}</span>
+                <span class="text-xs text-gray-500">{{ a.timestamp[:19] }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-400 text-center py-8">No alerts found.</p>
+{% endif %}

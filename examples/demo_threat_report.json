@@ -1,0 +1,51 @@
+{
+  "id": "report-demo-001",
+  "report_type": "daily",
+  "title": "ThreatLens Daily Report",
+  "summary": "24h threat assessment: 156 signals aggregated, 12 alerts generated, 3 campaigns active.",
+  "period_start": "2025-05-25T00:00:00Z",
+  "period_end": "2025-05-26T00:00:00Z",
+  "total_signals": 156,
+  "total_alerts": 12,
+  "total_campaigns": 3,
+  "top_ttps": [
+    {"ttp_id": "AML.T0051", "count": 45},
+    {"ttp_id": "AML.T0054", "count": 23},
+    {"ttp_id": "AML.T0066", "count": 15},
+    {"ttp_id": "AML.T0044", "count": 12},
+    {"ttp_id": "AML.T0059", "count": 8}
+  ],
+  "top_sources": {
+    "mcpguard": 78,
+    "palisade": 34,
+    "mcpwn": 22,
+    "agentgate": 15,
+    "abliterate": 7
+  },
+  "severity_distribution": {
+    "critical": 3,
+    "high": 18,
+    "medium": 45,
+    "low": 67,
+    "info": 35
+  },
+  "campaign_summaries": [
+    {
+      "campaign_id": "camp-abc123",
+      "name": "Campaign: injection, jailbreak",
+      "severity": "high",
+      "signal_count": 28,
+      "ttp_count": 4,
+      "first_seen": "2025-05-25T08:00:00Z",
+      "last_seen": "2025-05-25T22:00:00Z",
+      "active": true
+    }
+  ],
+  "executive_summary": "Critical: 3 critical severity events detected. High alert volume (12) suggests ongoing coordinated activity against MCP endpoints.",
+  "recommendations": [
+    "Investigate 3 active threat campaigns",
+    "Review and update AI security policies",
+    "Ensure all MCP tools are running latest versions",
+    "Validate threat feed integrations are healthy"
+  ]
+}

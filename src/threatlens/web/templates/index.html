@@ -1,0 +1,81 @@
+{% extends "dashboard.html" %}
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="stat bg-gray-800 rounded-box p-4 shadow">
+        <div class="stat-title text-gray-400">Total Signals</div>
+        <div class="stat-value text-3xl font-bold">{{ stats.total_signals }}</div>
+    </div>
+    <div class="stat bg-gray-800 rounded-box p-4 shadow">
+        <div class="stat-title text-gray-400">Active Alerts</div>
+        <div class="stat-value text-3xl font-bold text-orange-500">{{ stats.total_alerts }}</div>
+    </div>
+    <div class="stat bg-gray-800 rounded-box p-4 shadow">
+        <div class="stat-title text-gray-400">Active Campaigns</div>
+        <div class="stat-value text-3xl font-bold text-red-500">{{ stats.total_campaigns }}</div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-gray-800 rounded-box p-4 shadow">
+        <h2 class="text-lg font-bold mb-4">Severity Distribution</h2>
+        {% for sev, count in severity_bars %}
+        <div class="flex items-center gap-2 mb-1">
+            <span class="w-16 text-sm capitalize">{{ sev }}</span>
+            <div class="flex-1 bg-gray-700 rounded h-4">
+                <div class="bg-{{ sev_color(sev) }} rounded h-4" style="width:{{ count * 10 }}%"></div>
+            </div>
+            <span class="text-sm w-8">{{ count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="bg-gray-800 rounded-box p-4 shadow">
+        <h2 class="text-lg font-bold mb-4">Source Distribution</h2>
+        {% for src, count in source_bars %}
+        <div class="flex items-center gap-2 mb-1">
+            <span class="w-24 text-sm">{{ src }}</span>
+            <div class="flex-1 bg-gray-700 rounded h-4">
+                <div class="bg-purple-500 rounded h-4" style="width:{{ count * 10 }}%"></div>
+            </div>
+            <span class="text-sm w-8">{{ count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-gray-800 rounded-box p-4 shadow">
+        <h2 class="text-lg font-bold mb-4">Recent Alerts</h2>
+        <table class="table w-full">
+            <thead>
+                <tr><th class="px-4 py-2">Severity</th><th class="px-4 py-2">Title</th><th class="px-4 py-2">Timestamp</th></tr>
+            </thead>
+            <tbody>
+                {% for a in alerts %}
+                <tr>
+                    <td class="px-4 py-2"><span class="badge badge-{{ a.severity }}">{{ a.severity }}</span></td>
+                    <td class="px-4 py-2">{{ a.title[:60] }}</td>
+                    <td class="px-4 py-2 text-sm text-gray-400">{{ a.timestamp[:19] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="bg-gray-800 rounded-box p-4 shadow">
+        <h2 class="text-lg font-bold mb-4">Active Campaigns</h2>
+        <table class="table w-full">
+            <thead>
+                <tr><th class="px-4 py-2">Name</th><th class="px-4 py-2">Severity</th><th class="px-4 py-2">Active</th></tr>
+            </thead>
+            <tbody>
+                {% for c in campaigns %}
+                <tr>
+                    <td class="px-4 py-2">{{ c.name[:50] }}</td>
+                    <td class="px-4 py-2"><span class="badge badge-{{ c.severity }}">{{ c.severity }}</span></td>
+                    <td class="px-4 py-2">{{ 'Yes' if c.active else 'No' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

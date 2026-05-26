@@ -1,0 +1,4 @@
+{"signal_type": "known_ai_user_agent", "weight": 5, "action": "block", "path": "/api/chat", "user_agent": "GPTBot/1.0", "score": 85}
+{"signal_type": "high_request_rate", "weight": 3, "action": "challenge", "path": "/api/tools", "user_agent": "curl/7.0", "score": 65}
+{"signal_type": "honeypot_hit", "weight": 8, "action": "block", "path": "/hidden/admin", "user_agent": "python-requests/2.31", "score": 90}
+{"signal_type": "suspicious_user_agent", "weight": 2, "action": "log_only", "path": "/api/health", "user_agent": "Mozilla/5.0 (compatible; SemrushBot/7.0)", "score": 20}

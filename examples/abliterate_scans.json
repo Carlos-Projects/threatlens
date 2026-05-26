@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Model Safety Scan Report",
+    "description": "Comprehensive safety scan of llama-3-70b-instruct",
+    "model_path": "/models/llama-3-70b-instruct",
+    "risk_score": 78,
+    "anomalies": ["abliteration_detected", "safety_gradient_shift"],
+    "safety_violations": ["refusal_override", "system_prompt_leak"],
+    "snippet": "Detected 12 weight anomalies in safety layers 24-28",
+    "recommendation": "Apply safety restoration patch and re-verify"
+  },
+  {
+    "title": "Clean Model Scan",
+    "description": "Routine scan of gpt-4-turbo clone",
+    "model_path": "/models/gpt-4-turbo-safe",
+    "risk_score": 5,
+    "anomalies": [],
+    "safety_violations": []
+  }
+]
