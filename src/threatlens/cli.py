@@ -172,22 +172,33 @@ def correlate() -> None:
     ttp_extractor = TTPExtractor()
     all_ttps = ttp_extractor.extract_batch(signals)
 
-    # Save correlated events
     for event in correlated:
         db.save_correlated_event(event)
 
-    # Save campaigns
     for campaign in campaigns:
         db.save_campaign(campaign)
+
+    from threatlens.alerts.generator import AlertGenerator
+    from threatlens.alerts.deduplicator import AlertDeduplicator
+
+    alert_gen = AlertGenerator(db)
+    alert_dedup = AlertDeduplicator()
+    raw_alerts = alert_gen.generate(correlated, signals)
+    alerts = alert_dedup.deduplicate(raw_alerts)
 
     table = Table(title="Correlation Results")
     table.add_column("Type", style="cyan")
     table.add_column("Count", style="magenta")
     table.add_row("Correlated Events", str(len(correlated)))
+    table.add_row("Alerts Generated", str(len(alerts)))
     table.add_row("Campaigns Detected", str(len(campaigns)))
     table.add_row("Unique TTPs", str(len(set(t["id"] for t in all_ttps))))
     console.print(table)
 
+    if alerts:
+        console.print("\n[bold red]Alerts:[/bold red]")
+        for a in alerts[:5]:
+            console.print(f"  [red]{a.severity.value.upper()}[/red] {a.title[:80]}")
     if campaigns:
         console.print("\n[bold yellow]Campaigns:[/bold yellow]")
         for c in campaigns[:5]:

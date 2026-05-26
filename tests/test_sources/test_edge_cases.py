@@ -114,6 +114,48 @@ class TestExternalEdgeCases:
         signal = _cve_to_signal(cve)
         assert signal.description == ""
 
+    def test_cve_rce_weakness_maps_to_rce(self):
+        from threatlens.sources.external import _cve_to_signal, _infer_category_from_cwe
+
+        cve = {
+            "id": "CVE-2025-RCE",
+            "weaknesses": [{"description": [{"value": "CWE-94"}]}],
+            "descriptions": [{"lang": "en", "value": "Remote code execution vulnerability"}],
+            "metrics": {
+                "cvssMetricV31": [{"cvssData": {"baseScore": 9.8, "baseSeverity": "CRITICAL"}}]
+            },
+        }
+        inferred = _infer_category_from_cwe(cve)
+        assert inferred is not None and inferred.value == "rce"
+        signal = _cve_to_signal(cve)
+        assert signal.category.value == "rce"
+
+    def test_cve_ssrf_keyword_maps_to_ssrf(self):
+        from threatlens.sources.external import _infer_category_from_text
+
+        cat = _infer_category_from_text("Server-Side Request Forgery in webhook endpoint")
+        assert cat is not None and cat.value == "ssrf"
+
+    def test_cve_sqli_keyword_maps_to_sqli(self):
+        from threatlens.sources.external import _infer_category_from_text
+
+        cat = _infer_category_from_text("SQL Injection vulnerability in input parser")
+        assert cat is not None and cat.value == "sql_injection"
+
+    def test_cve_empty_text_returns_none(self):
+        from threatlens.sources.external import _infer_category_from_text
+
+        assert _infer_category_from_text("") is None
+
+    def test_cve_unrecognized_text_fallback(self):
+        from threatlens.sources.external import _cve_to_signal
+
+        signal = _cve_to_signal(
+            {"id": "CVE-2025-UNK", "descriptions": [{"lang": "en", "value": "Something unknown"}]}
+        )
+        assert signal.category.value == "malware"
+        assert signal.severity.value == "medium"
+
 
 class TestAbliterateEdgeCases:
     def test_abliterate_empty_scan(self):

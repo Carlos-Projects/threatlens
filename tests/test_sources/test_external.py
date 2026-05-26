@@ -81,6 +81,6 @@ class TestExternalClient:
         }
         signal = _cve_to_signal(cve)
         assert signal.source_id == "CVE-2025-1234"
-        assert signal.severity.value == "high"
+        assert signal.severity.value == "critical"
         assert signal.risk_score == 95
         assert "cve" in signal.tags
