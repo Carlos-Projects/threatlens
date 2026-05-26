@@ -9,6 +9,9 @@ RUN pip install --no-cache-dir hatch && \
 
 FROM python:3.11-slim AS runner
 
+RUN addgroup --system --gid 1001 threatlens && \
+    adduser --system --uid 1001 --ingroup threatlens threatlens
+
 WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -19,6 +22,8 @@ ENV THREATLENS_CONFIG=/data/config.yaml
 
 VOLUME ["/data"]
 EXPOSE 8080
+
+USER threatlens
 
 ENTRYPOINT ["threatlens"]
 CMD ["serve", "--host", "0.0.0.0", "--port", "8080"]

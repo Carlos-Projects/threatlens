@@ -71,8 +71,8 @@ class TestMCPwnEdgeCases:
         tmp = tempfile.mkdtemp()
         Path(tmp, "bad.json").write_text("{invalid")
         client = MCPwnClient(results_dir=tmp)
-        with pytest.raises(json.JSONDecodeError):
-            await client.fetch()
+        signals = await client.fetch()
+        assert signals == []
 
 
 class TestPalisadeEdgeCases:

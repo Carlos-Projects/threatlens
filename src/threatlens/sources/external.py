@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
@@ -10,6 +11,8 @@ from mcp_taxonomy import AttackCategory, Confidence, DetectionMethod, Severity
 
 from threatlens.models import RawSignal, SignalSource
 from threatlens.sources.base import SourceClient
+
+logger = logging.getLogger(__name__)
 
 CWE_CATEGORY_MAP: dict[str, AttackCategory] = {
     "CWE-77": AttackCategory.CMD_INJECTION,
@@ -157,7 +160,7 @@ class ExternalClient(SourceClient):
             "resultsPerPage": min(limit, 200),
         }
 
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=False) as client:
             try:
                 response = await client.get(self.nvd_base_url, params=params, headers=headers)
                 response.raise_for_status()
@@ -165,8 +168,8 @@ class ExternalClient(SourceClient):
                 for vuln in data.get("vulnerabilities", []):
                     cve = vuln.get("cve", {})
                     signals.append(_cve_to_signal(cve))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("NVD fetch error: %s", e)
 
         return signals
 

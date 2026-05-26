@@ -141,6 +141,7 @@ class Database:
     def save_signals(self, signals: list[RawSignal]) -> int:
         conn = self.connect()
         count = 0
+        max_snippet_len = 5000
         for sig in signals:
             try:
                 conn.execute(
@@ -155,17 +156,17 @@ class Database:
                         sig.category.value,
                         sig.severity.value,
                         sig.confidence.value,
-                        sig.title,
-                        sig.description,
-                        sig.recommendation,
+                        sig.title[:1000],
+                        sig.description[:2000],
+                        sig.recommendation[:1000],
                         str(sig.detection_method),
                         sig.target,
-                        sig.snippet,
+                        sig.snippet[:max_snippet_len] if sig.snippet else "",
                         json.dumps(sig.raw_data or {}),
                         sig.timestamp,
                         sig.blocked,
                         sig.risk_score,
-                        json.dumps(sig.tags),
+                        json.dumps(sig.tags[:50]),
                     ),
                 )
                 count += conn.total_changes

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
@@ -9,6 +10,8 @@ from mcp_taxonomy import palisade_finding_to_taxonomy
 
 from threatlens.models import RawSignal, SignalSource
 from threatlens.sources.base import SourceClient
+
+logger = logging.getLogger(__name__)
 
 
 class PalisadeClient(SourceClient):
@@ -23,11 +26,12 @@ class PalisadeClient(SourceClient):
         signals: list[RawSignal] = []
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=False) as client:
                 response = await client.get(url, params=params)
                 response.raise_for_status()
                 scans = response.json()
-        except Exception:
+        except Exception as e:
+            logger.warning("Palisade fetch error from %s: %s", self.base_url, e)
             return signals
 
         for scan in scans:

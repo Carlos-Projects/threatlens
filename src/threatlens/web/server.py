@@ -1,4 +1,8 @@
-"""FastAPI web server with HTMX dashboard."""
+"""FastAPI web server with HTMX dashboard.
+
+Includes security headers (CSP, HSTS), optional HTTPS redirect,
+and static file serving.
+"""
 
 from __future__ import annotations
 
@@ -6,11 +10,35 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from jinja2 import Environment, FileSystemLoader
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from threatlens.database import Database
+
+CSP_HEADER = (
+    "default-src 'self'; "
+    "script-src 'self' https://unpkg.com https://cdn.tailwindcss.com 'unsafe-inline'; "
+    "style-src 'self' https://cdn.jsdelivr.net https://cdn.tailwindcss.com 'unsafe-inline'; "
+    "img-src 'self' data:; "
+    "connect-src 'self'; "
+    "form-action 'self'; "
+    "frame-ancestors 'none'; "
+    "base-uri 'self'"
+)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next: Any) -> Any:
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = CSP_HEADER
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
+
 
 SEVERITY_COLORS = {
     "critical": "red-600",
@@ -36,13 +64,28 @@ def _render(template_name: str, **kwargs: Any) -> str:
     return _env().get_template(template_name).render(**kwargs)
 
 
-def create_app(db: Database | None = None, config: dict[str, Any] | None = None) -> FastAPI:
+def create_app(
+    db: Database | None = None,
+    config: dict[str, Any] | None = None,
+    force_https: bool = False,
+) -> FastAPI:
     app = FastAPI(title="ThreatLens", version="0.1.0")
     _db = db or Database()
+
+    app.add_middleware(SecurityHeadersMiddleware)
 
     static_dir = Path(__file__).parent / "static"
     if static_dir.exists():
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+    if force_https:
+
+        @app.middleware("http")
+        async def https_redirect(request: Request, call_next: Any) -> Any:
+            if request.headers.get("x-forwarded-proto", "http") == "http":
+                url = str(request.url).replace("http://", "https://", 1)
+                return RedirectResponse(url=url, status_code=301)
+            return await call_next(request)
 
     @app.get("/api/v1/health")
     async def health():

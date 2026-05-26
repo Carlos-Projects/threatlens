@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 
 class CVELookup:
@@ -17,7 +20,7 @@ class CVELookup:
         if self.api_key:
             headers["apiKey"] = self.api_key
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
             try:
                 response = await client.get(
                     self.base_url,
@@ -30,7 +33,8 @@ class CVELookup:
                 if vulns:
                     cve = vulns[0].get("cve", {})
                     return self._parse_cve(cve)
-            except Exception:
+            except Exception as e:
+                logger.warning("CVE lookup error for %s: %s", cve_id, e)
                 return None
         return None
 

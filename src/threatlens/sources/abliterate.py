@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,9 @@ from mcp_taxonomy import AttackCategory, Confidence, DetectionMethod, Severity, 
 
 from threatlens.models import RawSignal, SignalSource
 from threatlens.sources.base import SourceClient
+from threatlens.sources.mcpwn import _validate_source_path
+
+logger = logging.getLogger(__name__)
 
 
 def _abliterate_to_taxonomy(scan: dict[str, Any]) -> TaxonomyEvent:
@@ -57,8 +61,16 @@ class AbliterateClient(SourceClient):
         if not self.scan_dir.exists():
             return signals
 
+        if not _validate_source_path(self.scan_dir):
+            logger.error("Access denied to path: %s", self.scan_dir)
+            return signals
+
         for fpath in sorted(self.scan_dir.glob("*.json")):
-            scan = json.loads(fpath.read_text())
+            try:
+                scan = json.loads(fpath.read_text())
+            except json.JSONDecodeError as e:
+                logger.warning("Invalid JSON in %s: %s", fpath, e)
+                continue
             tax = _abliterate_to_taxonomy(scan)
             signals.append(
                 RawSignal(

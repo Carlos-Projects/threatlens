@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
 
 from threatlens.models import Alert
+
+logger = logging.getLogger(__name__)
 
 
 class AlertNotifier:
@@ -28,14 +31,15 @@ class AlertNotifier:
             f"Signals: {len(alert.signal_ids)}"
         )
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             try:
                 response = await client.post(
                     f"https://api.telegram.org/bot{bot_token}/sendMessage",
                     json={"chat_id": chat, "text": message, "parse_mode": "HTML"},
                 )
                 return response.status_code == 200
-            except Exception:
+            except Exception as e:
+                logger.warning("Telegram notify error: %s", e)
                 return False
 
     async def send_webhook(self, alert: Alert, url: str = "") -> bool:
@@ -55,7 +59,7 @@ class AlertNotifier:
             "source": "threatlens",
         }
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
             try:
                 response = await client.post(
                     webhook_url,
@@ -63,7 +67,8 @@ class AlertNotifier:
                     headers={"Content-Type": "application/json"},
                 )
                 return response.status_code < 300
-            except Exception:
+            except Exception as e:
+                logger.warning("Webhook notify error: %s", e)
                 return False
 
     async def notify(self, alert: Alert) -> dict[str, bool]:

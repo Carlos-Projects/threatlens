@@ -1,4 +1,4 @@
-"""Tests for API key auth middleware."""
+"""Tests for API key auth middleware with constant-time comparison and rate limiting."""
 
 from __future__ import annotations
 
@@ -78,3 +78,27 @@ class TestAPIKeyMiddleware:
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             resp = await client.get("/static/style.css")
             assert resp.status_code in (200, 404)
+
+    @pytest.mark.asyncio
+    async def test_web_page_gets_login_form(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/")
+            assert resp.status_code == 401
+            assert "Unauthorized" in resp.text
+
+    @pytest.mark.asyncio
+    async def test_web_page_with_valid_cookie(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/", cookies={"token": "test-key-123"})
+            assert resp.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_rate_limiting(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            for _ in range(10):
+                await client.post("/auth", data={"key": "wrong"})
+            resp = await client.post("/auth", data={"key": "wrong"})
+            assert resp.status_code == 429

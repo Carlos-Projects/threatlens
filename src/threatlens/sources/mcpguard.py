@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
@@ -9,6 +10,8 @@ from mcp_taxonomy import mcpguard_event_to_taxonomy
 
 from threatlens.models import RawSignal, SignalSource
 from threatlens.sources.base import SourceClient
+
+logger = logging.getLogger(__name__)
 
 
 class MCPGuardClient(SourceClient):
@@ -21,11 +24,12 @@ class MCPGuardClient(SourceClient):
         url = f"{self.base_url}/api/v1/events"
         params = {"limit": kwargs.get("limit", 100)}
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=False) as client:
                 response = await client.get(url, params=params)
                 response.raise_for_status()
                 events = response.json()
-        except Exception:
+        except Exception as e:
+            logger.warning("MCPGuard fetch error from %s: %s", self.base_url, e)
             return []
 
         signals: list[RawSignal] = []

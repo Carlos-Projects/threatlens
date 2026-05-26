@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,9 @@ from mcp_taxonomy import agentgate_signal_to_taxonomy
 
 from threatlens.models import RawSignal, SignalSource
 from threatlens.sources.base import SourceClient
+from threatlens.sources.mcpwn import _validate_source_path
+
+logger = logging.getLogger(__name__)
 
 
 class AgentGateClient(SourceClient):
@@ -21,6 +25,10 @@ class AgentGateClient(SourceClient):
     async def fetch(self, **kwargs: Any) -> list[RawSignal]:
         signals: list[RawSignal] = []
         if not self.log_path.exists():
+            return signals
+
+        if not _validate_source_path(self.log_path):
+            logger.error("Access denied to path: %s", self.log_path)
             return signals
 
         content = self.log_path.read_text()

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import Any
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 
 class AdvisoryFetcher:
@@ -26,11 +29,9 @@ class AdvisoryFetcher:
     async def _fetch_nvd_recent(self, days: int, limit: int) -> list[dict[str, Any]]:
         from datetime import timedelta
 
-        pub_start = (datetime.now(UTC) - timedelta(days=days)).strftime(
-            "%Y-%m-%dT%H:%M:%S.000"
-        )
+        pub_start = (datetime.now(UTC) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S.000")
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
             try:
                 response = await client.get(
                     self.sources["nvd"],
@@ -55,11 +56,12 @@ class AdvisoryFetcher:
                         }
                     )
                 return advisories
-            except Exception:
+            except Exception as e:
+                logger.warning("NVD advisory fetch error: %s", e)
                 return []
 
     async def query_osv(self, package: str, ecosystem: str = "PyPI") -> list[dict[str, Any]]:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
             try:
                 response = await client.post(
                     self.sources["osv"],
@@ -80,7 +82,8 @@ class AdvisoryFetcher:
                     }
                     for vuln in data.get("vulns", [])
                 ]
-            except Exception:
+            except Exception as e:
+                logger.warning("OSV query error for %s: %s", package, e)
                 return []
 
     def _get_description(self, cve: dict[str, Any]) -> str:
