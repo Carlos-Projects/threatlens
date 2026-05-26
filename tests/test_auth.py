@@ -1,4 +1,4 @@
-"""Tests for API key auth middleware with constant-time comparison and rate limiting."""
+"""Tests for API key auth middleware and security headers."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from httpx import AsyncClient, ASGITransport
 
 from fastapi import FastAPI
 from threatlens.web.auth import APIKeyMiddleware
+from threatlens.web.server import create_app
 
 
 @pytest.fixture
@@ -95,6 +96,28 @@ class TestAPIKeyMiddleware:
             assert resp.status_code == 200
 
     @pytest.mark.asyncio
+    async def test_web_page_with_x_api_key_header(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/", headers={"X-API-Key": "test-key-123"})
+            assert resp.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_login_success_redirects(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.post("/auth", data={"key": "test-key-123"})
+            assert resp.status_code == 302
+            assert resp.headers.get("location") == "/"
+
+    @pytest.mark.asyncio
+    async def test_login_failure(self, app_with_auth):
+        transport = ASGITransport(app=app_with_auth)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.post("/auth", data={"key": "wrong-key"})
+            assert resp.status_code == 401
+
+    @pytest.mark.asyncio
     async def test_rate_limiting(self, app_with_auth):
         transport = ASGITransport(app=app_with_auth)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -102,3 +125,17 @@ class TestAPIKeyMiddleware:
                 await client.post("/auth", data={"key": "wrong"})
             resp = await client.post("/auth", data={"key": "wrong"})
             assert resp.status_code == 429
+
+
+class TestSecurityHeaders:
+    @pytest.mark.asyncio
+    async def test_security_headers_via_create_app(self):
+        app = create_app()
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/api/v1/health")
+            assert resp.headers.get("content-security-policy") is not None
+            assert resp.headers.get("x-content-type-options") == "nosniff"
+            assert resp.headers.get("x-frame-options") == "DENY"
+            assert resp.headers.get("x-xss-protection") is not None
+            assert resp.headers.get("referrer-policy") is not None
