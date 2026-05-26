@@ -178,8 +178,8 @@ def correlate() -> None:
     for campaign in campaigns:
         db.save_campaign(campaign)
 
-    from threatlens.alerts.generator import AlertGenerator
     from threatlens.alerts.deduplicator import AlertDeduplicator
+    from threatlens.alerts.generator import AlertGenerator
 
     alert_gen = AlertGenerator(db)
     alert_dedup = AlertDeduplicator()

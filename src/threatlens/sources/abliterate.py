@@ -23,11 +23,12 @@ def _abliterate_to_taxonomy(scan: dict[str, Any]) -> TaxonomyEvent:
     snippet = scan.get("snippet", "")
     risk_score = scan.get("risk_score", 30)
 
-    if scan.get("anomalies") or scan.get("safety_violations"):
-        if any("abliteration" in str(a).lower() for a in scan.get("anomalies", [])):
-            category = AttackCategory.TOOL_POISONING
-            severity = Severity.HIGH
-            risk_score = max(risk_score, 60)
+    if (scan.get("anomalies") or scan.get("safety_violations")) and any(
+        "abliteration" in str(a).lower() for a in scan.get("anomalies", [])
+    ):
+        category = AttackCategory.TOOL_POISONING
+        severity = Severity.HIGH
+        risk_score = max(risk_score, 60)
 
     return TaxonomyEvent(
         source="reverse-abliterate",

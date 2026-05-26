@@ -132,7 +132,8 @@ class Database:
             CREATE INDEX IF NOT EXISTS idx_signals_category ON signals(category);
             CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity);
             CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp);
-            CREATE INDEX IF NOT EXISTS idx_correlated_events_severity ON correlated_events(severity);
+            CREATE INDEX IF NOT EXISTS idx_corr_events_severity
+                ON correlated_events(severity);
             CREATE INDEX IF NOT EXISTS idx_campaigns_active ON campaigns(active);
         """)
         conn.commit()

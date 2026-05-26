@@ -125,9 +125,9 @@ class AlertGenerator:
         return alerts
 
     def _matches_rule(self, event: CorrelatedEvent, rule: dict[str, Any]) -> bool:
-        if rule.get("min_correlation_score", 0) > 0:
-            if event.correlation_score < rule["min_correlation_score"]:
-                return False
+        min_score = rule.get("min_correlation_score", 0)
+        if min_score > 0 and event.correlation_score < min_score:
+            return False
 
         if "categories" in rule:
             event_cats = {s.category.value for s in event.signals}
@@ -139,10 +139,8 @@ class AlertGenerator:
             if not event_sources.intersection(rule["sources"]):
                 return False
 
-        if "min_sources" in rule:
-            sources = {s.source for s in event.signals}
-            if len(sources) < rule["min_sources"]:
-                return False
+        if "min_sources" in rule and len({s.source for s in event.signals}) < rule["min_sources"]:
+            return False
 
         if "min_signals" in rule and len(event.signals) < rule["min_signals"]:
             return False

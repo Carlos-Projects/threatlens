@@ -107,15 +107,27 @@ def create_app(db: Database | None = None, config: dict[str, Any] | None = None)
         request: Request,
         source: str | None = None,
         severity: str | None = None,
+        category: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ):
-        signals = _db.get_signals(source=source, severity=severity, limit=limit, offset=offset)
+        signals = _db.get_signals(
+            source=source,
+            severity=severity,
+            category=category,
+            limit=limit,
+            offset=offset,
+        )
         return _render("signals_table.html", signals=signals)
 
     @app.get("/alerts", response_class=HTMLResponse)
-    async def alerts_page(request: Request):
-        alerts = _db.get_alerts(limit=50)
+    async def alerts_page(
+        request: Request,
+        severity: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ):
+        alerts = _db.get_alerts(severity=severity, limit=limit, offset=offset)
         return _render("alerts_cards.html", alerts=alerts)
 
     return app

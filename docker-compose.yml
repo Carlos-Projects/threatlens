@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  threatlens:
+    build: .
+    container_name: threatlens
+    ports:
+      - "8080:8080"
+    volumes:
+      - threatlens_data:/data
+    environment:
+      - THREATLENS_DB_PATH=/data/threatlens.db
+      - THREATLENS_CONFIG=/data/config.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  threatlens_data:
