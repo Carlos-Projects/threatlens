@@ -63,7 +63,7 @@ class ExternalClient(SourceClient):
         if self.nvd_api_key:
             headers["apiKey"] = self.nvd_api_key
 
-        params = {
+        params: dict[str, str | int] = {
             "keywordSearch": " ".join(keywords),
             "resultsPerPage": min(limit, 200),
         }

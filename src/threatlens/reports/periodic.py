@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -82,7 +82,7 @@ class PeriodicReportScheduler:
         return signals
 
     async def _generate_daily(self) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         start = (now - timedelta(days=1)).isoformat()
         end = now.isoformat()
         rows = self.db.get_signals(limit=1000)
@@ -98,7 +98,7 @@ class PeriodicReportScheduler:
         )
 
     async def _generate_weekly(self) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         start = (now - timedelta(weeks=1)).isoformat()
         end = now.isoformat()
         rows = self.db.get_signals(limit=5000)
@@ -114,7 +114,7 @@ class PeriodicReportScheduler:
         )
 
     async def _generate_monthly(self) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         start = (now - timedelta(days=30)).isoformat()
         end = now.isoformat()
         rows = self.db.get_signals(limit=10000)

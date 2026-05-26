@@ -236,11 +236,11 @@ def report(
         )
 
     if report_type == "executive":
-        gen = ExecutiveReportGenerator(db)
-        report_obj = gen.generate(signals, [], [], period_label="Current Period")
+        report_obj = ExecutiveReportGenerator(db).generate(
+            signals, [], [], period_label="Current Period"
+        )
     else:
-        gen = ReportGenerator(db)
-        report_obj = gen.generate(
+        report_obj = ReportGenerator(db).generate(
             report_type=report_type,
             signals=signals,
             correlated_events=[],
