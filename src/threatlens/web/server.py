@@ -53,11 +53,16 @@ def _severity_color(sev: str) -> str:
     return SEVERITY_COLORS.get(sev, "gray-400")
 
 
+_TEMPLATE_ENV: Environment | None = None
+
+
 def _env() -> Environment:
-    templates = Path(__file__).parent / "templates"
-    env = Environment(loader=FileSystemLoader(str(templates)))
-    env.globals["sev_color"] = _severity_color
-    return env
+    global _TEMPLATE_ENV
+    if _TEMPLATE_ENV is None:
+        templates = Path(__file__).parent / "templates"
+        _TEMPLATE_ENV = Environment(loader=FileSystemLoader(str(templates)))
+        _TEMPLATE_ENV.globals["sev_color"] = _severity_color
+    return _TEMPLATE_ENV
 
 
 def _render(template_name: str, **kwargs: Any) -> str:

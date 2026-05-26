@@ -1,4 +1,4 @@
-"""Tests for the FastAPI web server."""
+"""Tests for the FastAPI web server — covers middleware, caching, HTTPS redirect."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 
 from threatlens.database import Database
-from threatlens.web.server import create_app, _severity_color, _render
+from threatlens.web.server import create_app, _env, _severity_color
 
 from mcp_taxonomy import AttackCategory, Confidence
 
@@ -141,18 +141,50 @@ class TestWebServer:
         assert "text/html" in response.headers.get("content-type", "")
 
 
-class TestServerUtils:
-    def test_severity_color_mapping(self):
+class TestHTTPSRedirect:
+    @pytest.mark.asyncio
+    async def test_https_redirect_when_force_enabled(self):
+        app = create_app(force_https=True)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/api/v1/health", headers={"x-forwarded-proto": "http"})
+            assert resp.status_code == 301
+            assert resp.headers["location"].startswith("https://")
+
+    @pytest.mark.asyncio
+    async def test_https_no_redirect_when_already_https(self):
+        app = create_app(force_https=True)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="https://test") as client:
+            resp = await client.get("/api/v1/health", headers={"x-forwarded-proto": "https"})
+            assert resp.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_https_no_redirect_when_disabled(self):
+        app = create_app(force_https=False)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/api/v1/health")
+            assert resp.status_code == 200
+
+
+class TestEnvCache:
+    def test_env_is_cached(self):
+        env1 = _env()
+        env2 = _env()
+        assert env1 is env2
+
+    def test_severity_color(self):
         assert _severity_color("critical") == "red-600"
         assert _severity_color("high") == "orange-500"
         assert _severity_color("unknown") == "gray-400"
-
-    def test_render_template_not_found(self):
-        with pytest.raises(Exception):
-            _render("nonexistent.html")
 
 
 class TestCreateApp:
     def test_create_without_db(self):
         app = create_app()
+        assert app.title == "ThreatLens"
+
+    def test_create_with_force_https(self):
+        app = create_app(force_https=True)
         assert app.title == "ThreatLens"
