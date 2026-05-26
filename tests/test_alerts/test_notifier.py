@@ -122,3 +122,18 @@ class TestAlertNotifier:
         with patch("httpx.AsyncClient", return_value=mock_client):
             result = await self.notifier.send_webhook(self._make_alert())
             assert result is False
+
+    @pytest.mark.asyncio
+    async def test_notify_with_enabled_channels(self):
+        mock_post = AsyncMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_post.return_value = mock_resp
+        mock_client = _mock_async_client(post_return=mock_resp)
+        mock_client.post = mock_post
+        mock_client.__aenter__.return_value = mock_client
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await self.notifier.notify(self._make_alert())
+            assert "telegram" in result
+            assert "webhook" in result

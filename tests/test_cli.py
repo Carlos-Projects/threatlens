@@ -75,3 +75,65 @@ class TestCLI:
             with patch("threatlens.cli._load_config", return_value=config):
                 result = runner.invoke(app, ["correlate"])
             assert result.exit_code == 0
+
+    def test_report_daily_no_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["report", "--report-type", "daily"])
+            assert result.exit_code == 0
+
+    def test_report_executive_no_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["report", "--report-type", "executive"])
+            assert result.exit_code == 0
+
+    def test_report_to_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            output_path = Path(tmp) / "report.json"
+            config = {"database": {"path": str(db_path)}}
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(
+                    app,
+                    [
+                        "report",
+                        "--report-type",
+                        "weekly",
+                        "--output",
+                        str(output_path),
+                    ],
+                )
+            assert result.exit_code == 0
+            assert output_path.exists()
+
+    def test_feed_to_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            output_path = Path(tmp) / "feed.json"
+            config = {"database": {"path": str(db_path)}}
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(
+                    app,
+                    [
+                        "feed",
+                        "--limit",
+                        "5",
+                        "--output",
+                        str(output_path),
+                    ],
+                )
+            assert result.exit_code == 0
+            assert output_path.exists()
+
+    def test_enrich_no_cves(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["enrich"])
+            assert result.exit_code == 0

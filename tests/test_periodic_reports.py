@@ -44,6 +44,36 @@ class TestPeriodicReportScheduler:
         assert scheduler.db is db
         assert scheduler.generator is not None
 
+    def test_start_with_daily_only(self, db):
+        scheduler = PeriodicReportScheduler(
+            db, {"reports": {"schedule": {"daily": True, "weekly": False, "monthly": False}}}
+        )
+        assert scheduler.config["reports"]["schedule"]["daily"] is True
+        assert scheduler.config["reports"]["schedule"]["weekly"] is False
+        assert scheduler.config["reports"]["schedule"]["monthly"] is False
+
+    def test_start_with_weekly_only(self, db):
+        scheduler = PeriodicReportScheduler(
+            db, {"reports": {"schedule": {"daily": False, "weekly": True, "monthly": False}}}
+        )
+        assert scheduler.config["reports"]["schedule"]["daily"] is False
+
+    def test_start_with_monthly_only(self, db):
+        scheduler = PeriodicReportScheduler(
+            db, {"reports": {"schedule": {"daily": False, "weekly": False, "monthly": True}}}
+        )
+        assert scheduler.config["reports"]["schedule"]["monthly"] is True
+
+    def test_start_all_disabled(self, db):
+        scheduler = PeriodicReportScheduler(
+            db, {"reports": {"schedule": {"daily": False, "weekly": False, "monthly": False}}}
+        )
+        assert not any(scheduler.config["reports"]["schedule"].values())
+
+    def test_start_default_schedule(self, db):
+        scheduler = PeriodicReportScheduler(db)
+        assert scheduler.config == {}
+
     @pytest.mark.asyncio
     async def test_generate_daily(self, db):
         scheduler = PeriodicReportScheduler(db)

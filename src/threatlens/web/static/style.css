@@ -1,0 +1,31 @@
+/* ThreatLens Custom Styles */
+.badge-critical { background: #dc2626; color: white; }
+.badge-high { background: #ea580c; color: white; }
+.badge-medium { background: #ca8a04; color: white; }
+.badge-low { background: #3b82f6; color: white; }
+.badge-info { background: #6b7280; color: white; }
+.text-critical { color: #f87171; }
+.text-high { color: #fb923c; }
+.text-medium { color: #facc15; }
+
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+.pagination-btn {
+    @apply btn btn-sm btn-ghost;
+}
+.pagination-btn.active {
+    @apply btn-primary;
+}
+
+.signal-row:hover {
+    background: rgba(255,255,255,0.05);
+}

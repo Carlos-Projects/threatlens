@@ -1,18 +1,41 @@
-{% if alerts %}
-<div class="grid gap-4">
-    {% for a in alerts %}
-    <div class="card bg-base-200 shadow-xl mb-4">
-        <div class="card-body">
-            <h3 class="card-title text-{{ a.severity }}">{{ a.title[:80] }}</h3>
-            <p class="text-sm text-gray-400">{{ a.description[:200] }}</p>
-            <div class="flex gap-2 mt-2">
-                <span class="badge badge-{{ a.severity }}">{{ a.severity }}</span>
-                <span class="text-xs text-gray-500">{{ a.timestamp[:19] }}</span>
-            </div>
+<div id="alerts-container">
+    {% if alerts %}
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Alerts ({{ alerts|length }} shown)</h2>
+        <div class="flex gap-2">
+            <button class="pagination-btn" hx-get="/alerts?offset={{ offset - limit if offset >= limit else 0 }}&limit={{ limit }}"
+                    hx-target="#alerts-container" hx-swap="outerHTML"
+                    {{ 'disabled' if offset == 0 }}>
+                ← Previous
+            </button>
+            <button class="pagination-btn" hx-get="/alerts?offset={{ offset + limit }}&limit={{ limit }}"
+                    hx-target="#alerts-container" hx-swap="outerHTML"
+                    {{ 'disabled' if alerts|length < limit }}>
+                Next →
+            </button>
         </div>
     </div>
-    {% endfor %}
+    <div class="grid gap-4">
+        {% for a in alerts %}
+        <div class="card bg-base-200 shadow-xl mb-4">
+            <div class="card-body">
+                <h3 class="card-title text-{{ a.severity }}">{{ a.title[:80] }}</h3>
+                <p class="text-sm text-gray-400">{{ a.description[:200] }}</p>
+                <div class="flex gap-2 mt-2">
+                    <span class="badge badge-{{ a.severity }}">{{ a.severity }}</span>
+                    <span class="text-xs text-gray-500">{{ a.timestamp[:19] }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-8">
+        <p class="text-gray-400">No alerts found.</p>
+        <button class="btn btn-primary mt-4" hx-get="/alerts?offset=0&limit=50"
+                hx-target="#alerts-container" hx-swap="outerHTML">
+            Refresh
+        </button>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<p class="text-gray-400 text-center py-8">No alerts found.</p>
-{% endif %}

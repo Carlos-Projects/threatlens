@@ -1,20 +1,49 @@
-{% if signals %}
-<table class="table w-full">
-    <thead>
-        <tr><th class="px-4 py-2">Source</th><th class="px-4 py-2">Severity</th><th class="px-4 py-2">Category</th><th class="px-4 py-2">Title</th><th class="px-4 py-2">Timestamp</th></tr>
-    </thead>
-    <tbody>
-        {% for s in signals %}
-        <tr>
-            <td class="px-4 py-2">{{ s.source }}</td>
-            <td class="px-4 py-2"><span class="badge badge-{{ s.severity }}">{{ s.severity }}</span></td>
-            <td class="px-4 py-2">{{ s.category }}</td>
-            <td class="px-4 py-2">{{ s.title[:60] }}</td>
-            <td class="px-4 py-2 text-sm text-gray-400">{{ s.timestamp[:19] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p class="text-gray-400 text-center py-8">No signals found.</p>
-{% endif %}
+<div id="signals-container">
+    {% if signals %}
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">Signals ({{ signals|length }} shown)</h2>
+        <div class="flex gap-2">
+            <button class="pagination-btn" hx-get="/signals?offset={{ offset - limit if offset >= limit else 0 }}&limit={{ limit }}"
+                    hx-target="#signals-container" hx-swap="outerHTML"
+                    {{ 'disabled' if offset == 0 }}>
+                ← Previous
+            </button>
+            <button class="pagination-btn" hx-get="/signals?offset={{ offset + limit }}&limit={{ limit }}"
+                    hx-target="#signals-container" hx-swap="outerHTML"
+                    {{ 'disabled' if signals|length < limit }}>
+                Next →
+            </button>
+        </div>
+    </div>
+    <table class="table w-full">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Source</th>
+                <th class="px-4 py-2">Severity</th>
+                <th class="px-4 py-2">Category</th>
+                <th class="px-4 py-2">Title</th>
+                <th class="px-4 py-2">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in signals %}
+            <tr class="signal-row">
+                <td class="px-4 py-2">{{ s.source }}</td>
+                <td class="px-4 py-2"><span class="badge badge-{{ s.severity }}">{{ s.severity }}</span></td>
+                <td class="px-4 py-2">{{ s.category }}</td>
+                <td class="px-4 py-2">{{ s.title[:60] }}</td>
+                <td class="px-4 py-2 text-sm text-gray-400">{{ s.timestamp[:19] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-8">
+        <p class="text-gray-400">No signals found.</p>
+        <button class="btn btn-primary mt-4" hx-get="/signals?offset=0&limit=50"
+                hx-target="#signals-container" hx-swap="outerHTML">
+            Refresh
+        </button>
+    </div>
+    {% endif %}
+</div>
