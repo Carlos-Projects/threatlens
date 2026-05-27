@@ -6,6 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/threatlens-ai.svg)](https://pypi.org/project/threatlens-ai/)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/Carlos-Projects/threatlens)
+[![Docs](https://img.shields.io/badge/docs-github.io-blue.svg)](https://carlos-projects.github.io/threatlens/)
 
 **ThreatLens** is a threat intelligence aggregation and correlation engine for the **AI/MCP security ecosystem**. It ingests security signals from multiple tools, correlates them across time and attack vectors, enriches with external threat intelligence, and produces actionable alerts and threat reports.
 

@@ -56,7 +56,7 @@ web = [
 [project.urls]
 Homepage = "https://github.com/Carlos-Projects/threatlens"
 Repository = "https://github.com/Carlos-Projects/threatlens"
-Documentation = "https://github.com/Carlos-Projects/threatlens#readme"
+Documentation = "https://carlos-projects.github.io/threatlens/"
 
 [project.scripts]
 threatlens = "threatlens.cli:app"
