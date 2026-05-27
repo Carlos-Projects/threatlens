@@ -9,7 +9,7 @@ aux_links:
   "PyPI":
     - "https://pypi.org/project/threatlens-ai/"
 
-footer_content: "Copyright &copy; Carlos Rocha. Distributed under the MIT license."
+footer_content: "Copyright &copy; Carlos-Projects. Distributed under the MIT license."
 
 logo: "/assets/images/logo.png"
 

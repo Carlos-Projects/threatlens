@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-Security issues should be reported privately via email to **carlos@carlosrocha.dev**.
+Security issues should be reported privately via email to **Carlos@AIAgentObservatory.org**.
 
 Please do **not** open public issues for security vulnerabilities.
 

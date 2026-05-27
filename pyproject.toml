@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "threatlens-ai"
 version = "0.2.0"
 description = "Threat intelligence aggregation and correlation engine for AI/MCP security"
-authors = [{ name = "Carlos Rocha", email = "carlos@carlosrocha.dev" }]
+authors = [{ name = "Carlos-Projects", email = "Carlos@AIAgentObservatory.org" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.11"
