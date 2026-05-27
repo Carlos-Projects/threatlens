@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-import pytest
+from mcp_taxonomy import AttackCategory, Confidence, DetectionMethod
 
 from threatlens.models import (
     Alert,
@@ -15,7 +15,6 @@ from threatlens.models import (
     SignalSource,
     ThreatReport,
 )
-from mcp_taxonomy import AttackCategory, Confidence, DetectionMethod
 
 
 class TestRawSignal:
@@ -81,7 +80,7 @@ class TestRawSignal:
             confidence=Confidence.LOW,
             title="Crawl detected",
         )
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ts = datetime.fromisoformat(sig.timestamp)
         assert abs((now - ts).total_seconds()) < 5
 

@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
-from threatlens.enrichment.atlas_mapper import AtlasMapper, ATLAS_TECHNIQUES
 from mcp_taxonomy import AttackCategory
+
+from threatlens.enrichment.atlas_mapper import ATLAS_TECHNIQUES, AtlasMapper
 
 
 class TestAtlasMapper:

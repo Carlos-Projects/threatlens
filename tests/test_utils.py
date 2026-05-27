@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from threatlens.utils.crypto import CryptoUtils
 
 

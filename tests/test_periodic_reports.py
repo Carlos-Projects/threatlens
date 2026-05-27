@@ -7,11 +7,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.database import Database
-from threatlens.reports.periodic import PeriodicReportScheduler
 from threatlens.models import RawSignal, Severity, SignalSource
-from mcp_taxonomy import AttackCategory, Confidence
+from threatlens.reports.periodic import PeriodicReportScheduler
 
 
 @pytest.fixture

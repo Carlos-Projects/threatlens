@@ -11,6 +11,21 @@
 
 **ThreatLens** is a threat intelligence aggregation and correlation engine for the **AI/MCP security ecosystem**. It ingests security signals from multiple tools, correlates them across time and attack vectors, enriches with external threat intelligence, and produces actionable alerts and threat reports.
 
+## Quick Start
+
+```bash
+pip install threatlens-ai
+threatlens init          # Create default config
+threatlens aggregate     # Fetch signals from all sources
+threatlens serve         # Start web dashboard at http://127.0.0.1:8080
+```
+
+Or with Docker:
+
+```bash
+docker compose up -d
+```
+
 ## Ecosystem Integration
 
 | Source | Tool | Signals |

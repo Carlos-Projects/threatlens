@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import pytest
-from httpx import AsyncClient, ASGITransport
-
 from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
+
 from threatlens.web.auth import APIKeyMiddleware
 from threatlens.web.server import create_app
 

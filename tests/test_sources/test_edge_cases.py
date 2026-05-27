@@ -2,18 +2,15 @@
 
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from threatlens.models import RawSignal, SignalSource
-from threatlens.sources.abliterate import AbliterateClient, _abliterate_to_taxonomy
-from threatlens.sources.agentgate import AgentGateClient
+from threatlens.sources.abliterate import _abliterate_to_taxonomy
 from threatlens.sources.base import SourceClient
-from threatlens.sources.external import ExternalClient, _cve_to_signal
+from threatlens.sources.external import _cve_to_signal
 from threatlens.sources.mcpguard import MCPGuardClient
 from threatlens.sources.mcpwn import MCPwnClient
 from threatlens.sources.palisade import PalisadeClient

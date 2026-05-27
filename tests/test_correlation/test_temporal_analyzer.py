@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.correlation.temporal_analyzer import TemporalAnalyzer
 from threatlens.models import RawSignal, Severity, SignalSource
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 def _make_signal(source_id: str, minutes_ago: float = 0) -> RawSignal:
-    ts = (datetime.now(timezone.utc) - timedelta(minutes=minutes_ago)).isoformat()
+    ts = (datetime.now(UTC) - timedelta(minutes=minutes_ago)).isoformat()
     return RawSignal(
         source=SignalSource.MCPGUARD,
         source_id=source_id,

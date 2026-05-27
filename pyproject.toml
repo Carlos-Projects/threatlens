@@ -71,8 +71,8 @@ dependencies = [
 ]
 
 [tool.hatch.envs.default.scripts]
-lint = "ruff check src/"
-lint-fix = "ruff check --fix src/"
+lint = "ruff check src/ tests/"
+lint-fix = "ruff check --fix src/ tests/"
 test = "python -m pytest tests/ -v"
 test-cov = "python -m pytest tests/ --cov=threatlens --cov-report=term"
 typecheck = "mypy src/"
@@ -87,13 +87,14 @@ include = ["/src", "/tests", "/examples"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["src"]
+src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"tests/*" = ["UP006", "N818", "N801", "D", "F841", "SIM115", "B007", "UP017", "E501"]
 
 [tool.mypy]
 python_version = "3.11"

@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.aggregator import Aggregator
 from threatlens.database import Database
 from threatlens.models import RawSignal, Severity, SignalSource
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 @pytest.fixture

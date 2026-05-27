@@ -6,12 +6,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.database import Database
+from threatlens.models import Alert, RawSignal, Severity, SignalSource
 from threatlens.web.server import create_app
-from threatlens.models import RawSignal, Severity, SignalSource, Alert
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 @pytest.fixture

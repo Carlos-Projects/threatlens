@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
-from threatlens.alerts.generator import AlertGenerator, ALERT_RULES
+from threatlens.alerts.generator import ALERT_RULES, AlertGenerator
 from threatlens.models import (
-    Alert,
     CorrelatedEvent,
     RawSignal,
     Severity,
     SignalSource,
 )
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 def _make_signal(sid: str, category=AttackCategory.INJECTION, severity=Severity.HIGH) -> RawSignal:

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
 
 import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.database import Database
 from threatlens.models import (
@@ -18,7 +18,6 @@ from threatlens.models import (
     SignalSource,
     ThreatReport,
 )
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 @pytest.fixture

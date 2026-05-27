@@ -19,6 +19,10 @@ def test_version():
     assert __version__ == "0.2.0"
 
 
+def test_main_module_importable():
+    from threatlens import __main__  # noqa: F401
+
+
 class TestCLI:
     def test_help_shows_commands(self):
         result = runner.invoke(app, ["--help"])
@@ -84,8 +88,9 @@ class TestCLI:
 
             db = Database(db_path=str(db_path))
             db.initialize()
-            from threatlens.models import RawSignal, Severity, SignalSource
             from mcp_taxonomy import AttackCategory, Confidence
+
+            from threatlens.models import RawSignal, Severity, SignalSource
 
             db.save_signals(
                 [
@@ -178,8 +183,9 @@ class TestCLI:
 
             db = Database(db_path=str(db_path))
             db.initialize()
-            from threatlens.models import RawSignal, Severity, SignalSource
             from mcp_taxonomy import AttackCategory, Confidence
+
+            from threatlens.models import RawSignal, Severity, SignalSource
 
             db.save_signals(
                 [
@@ -222,8 +228,9 @@ class TestCLI:
 
             db = Database(db_path=str(db_path))
             db.initialize()
-            from threatlens.models import RawSignal, Severity, SignalSource
             from mcp_taxonomy import AttackCategory, Confidence
+
+            from threatlens.models import RawSignal, Severity, SignalSource
 
             db.save_signals(
                 [
@@ -262,8 +269,9 @@ class TestCLI:
 
             db = Database(db_path=str(db_path))
             db.initialize()
-            from threatlens.models import RawSignal, Severity, SignalSource
             from mcp_taxonomy import AttackCategory, Confidence
+
+            from threatlens.models import RawSignal, Severity, SignalSource
 
             signals = [
                 RawSignal(

@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.database import Database
-from threatlens.web.server import create_app, _env, _severity_color
-
-from mcp_taxonomy import AttackCategory, Confidence
+from threatlens.web.server import _env, _severity_color, create_app
 
 
 @pytest.fixture
@@ -21,7 +19,7 @@ def db():
     database = Database(db_path=tmp.name)
     database.initialize()
 
-    from threatlens.models import RawSignal, Severity, SignalSource, Alert
+    from threatlens.models import Alert, RawSignal, Severity, SignalSource
 
     database.save_signals(
         [

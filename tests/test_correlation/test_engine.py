@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.correlation.engine import CorrelationEngine
 from threatlens.models import RawSignal, Severity, SignalSource
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 def _sig(

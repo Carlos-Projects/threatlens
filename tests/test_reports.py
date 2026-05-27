@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.database import Database
 from threatlens.models import (
@@ -15,11 +16,9 @@ from threatlens.models import (
     RawSignal,
     Severity,
     SignalSource,
-    ThreatReport,
 )
 from threatlens.reports.executive import ExecutiveReportGenerator
 from threatlens.reports.generator import ReportGenerator
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 @pytest.fixture

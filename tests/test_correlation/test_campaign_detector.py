@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-
-import pytest
+from mcp_taxonomy import AttackCategory, Confidence
 
 from threatlens.correlation.campaign_detector import CampaignDetector
 from threatlens.models import RawSignal, Severity, SignalSource
-from mcp_taxonomy import AttackCategory, Confidence
 
 
 def _make_signal(
