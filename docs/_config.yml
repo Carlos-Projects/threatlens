@@ -1,0 +1,20 @@
+remote_theme: just-the-docs/just-the-docs
+title: ThreatLens
+description: Threat intelligence aggregation and correlation engine for AI/MCP security
+color_scheme: dark
+
+aux_links:
+  "GitHub":
+    - "https://github.com/Carlos-Projects/threatlens"
+  "PyPI":
+    - "https://pypi.org/project/threatlens-ai/"
+
+footer_content: "Copyright &copy; Carlos Rocha. Distributed under the MIT license."
+
+logo: "/assets/images/logo.png"
+
+# Enable search
+search_enabled: true
+
+# Enable heading anchors
+heading_anchors: true

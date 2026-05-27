@@ -16,7 +16,7 @@ runner = CliRunner()
 def test_version():
     from threatlens import __version__
 
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.2.0"
 
 
 class TestCLI:
