@@ -35,6 +35,9 @@ class Database:
             self._conn.close()
             self._conn = None
 
+    def __del__(self) -> None:
+        self.close()
+
     def initialize(self) -> None:
         conn = self.connect()
         conn.executescript("""

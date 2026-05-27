@@ -56,14 +56,18 @@ ATLAS_TTP_MAP: dict[AttackCategory, list[dict[str, str]]] = {
 }
 
 
+UNCATEGORIZED_TTP_ID = "AML.T0000"
+UNCATEGORIZED_TTP_NAME = "Uncategorized Event"
+
+
 class TTPExtractor:
     def extract(self, signal: RawSignal) -> list[dict[str, Any]]:
         ttps = ATLAS_TTP_MAP.get(signal.category, [])
         if not ttps:
             return [
                 {
-                    "id": "AML.TXXXX",
-                    "name": "Uncategorized Event",
+                    "id": UNCATEGORIZED_TTP_ID,
+                    "name": UNCATEGORIZED_TTP_NAME,
                     "phase": "Unknown",
                     "confidence": signal.confidence.value,
                     "evidence": signal.snippet[:200] if signal.snippet else signal.title,

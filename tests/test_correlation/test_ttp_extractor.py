@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from threatlens.correlation.ttp_extractor import TTPExtractor, ATLAS_TTP_MAP
+from threatlens.correlation.ttp_extractor import TTPExtractor, ATLAS_TTP_MAP, UNCATEGORIZED_TTP_ID
 from threatlens.models import RawSignal, Severity, SignalSource
 from mcp_taxonomy import AttackCategory, Confidence
 
@@ -62,7 +62,7 @@ class TestTTPExtractor:
         )
         ttps = self.extractor.extract(sig)
         assert len(ttps) == 1
-        assert ttps[0]["id"] == "AML.TXXXX"
+        assert ttps[0]["id"] == UNCATEGORIZED_TTP_ID
 
     def test_extract_batch(self):
         signals = [

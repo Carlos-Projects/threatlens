@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -44,31 +44,95 @@ class TestPeriodicReportScheduler:
         assert scheduler.db is db
         assert scheduler.generator is not None
 
-    def test_start_with_daily_only(self, db):
+    def test_start_adds_daily_job(self, db):
         scheduler = PeriodicReportScheduler(
             db, {"reports": {"schedule": {"daily": True, "weekly": False, "monthly": False}}}
         )
-        assert scheduler.config["reports"]["schedule"]["daily"] is True
-        assert scheduler.config["reports"]["schedule"]["weekly"] is False
-        assert scheduler.config["reports"]["schedule"]["monthly"] is False
+        with (
+            patch.object(scheduler.scheduler, "start"),
+            patch.object(scheduler.scheduler, "add_job") as mock_add,
+        ):
+            scheduler.start()
+            mock_add.assert_called_once_with(
+                scheduler._generate_daily,
+                "cron",
+                hour=23,
+                minute=0,
+                id="daily_report",
+                replace_existing=True,
+            )
 
-    def test_start_with_weekly_only(self, db):
+    def test_start_adds_weekly_job(self, db):
         scheduler = PeriodicReportScheduler(
             db, {"reports": {"schedule": {"daily": False, "weekly": True, "monthly": False}}}
         )
-        assert scheduler.config["reports"]["schedule"]["daily"] is False
+        with (
+            patch.object(scheduler.scheduler, "start"),
+            patch.object(scheduler.scheduler, "add_job") as mock_add,
+        ):
+            scheduler.start()
+            mock_add.assert_called_once_with(
+                scheduler._generate_weekly,
+                "cron",
+                day_of_week="sun",
+                hour=23,
+                minute=30,
+                id="weekly_report",
+                replace_existing=True,
+            )
 
-    def test_start_with_monthly_only(self, db):
+    def test_start_adds_monthly_job(self, db):
         scheduler = PeriodicReportScheduler(
             db, {"reports": {"schedule": {"daily": False, "weekly": False, "monthly": True}}}
         )
-        assert scheduler.config["reports"]["schedule"]["monthly"] is True
+        with (
+            patch.object(scheduler.scheduler, "start"),
+            patch.object(scheduler.scheduler, "add_job") as mock_add,
+        ):
+            scheduler.start()
+            mock_add.assert_called_once_with(
+                scheduler._generate_monthly,
+                "cron",
+                day=1,
+                hour=0,
+                minute=0,
+                id="monthly_report",
+                replace_existing=True,
+            )
 
-    def test_start_all_disabled(self, db):
+    def test_start_all_enabled_adds_three_jobs(self, db):
+        scheduler = PeriodicReportScheduler(
+            db, {"reports": {"schedule": {"daily": True, "weekly": True, "monthly": True}}}
+        )
+        with (
+            patch.object(scheduler.scheduler, "start"),
+            patch.object(scheduler.scheduler, "add_job") as mock_add,
+        ):
+            scheduler.start()
+            assert mock_add.call_count == 3
+
+    def test_start_all_disabled_adds_no_jobs(self, db):
         scheduler = PeriodicReportScheduler(
             db, {"reports": {"schedule": {"daily": False, "weekly": False, "monthly": False}}}
         )
-        assert not any(scheduler.config["reports"]["schedule"].values())
+        with (
+            patch.object(scheduler.scheduler, "start"),
+            patch.object(scheduler.scheduler, "add_job") as mock_add,
+        ):
+            scheduler.start()
+            mock_add.assert_not_called()
+
+    def test_start_calls_scheduler_start(self, db):
+        scheduler = PeriodicReportScheduler(db)
+        with patch.object(scheduler.scheduler, "start") as mock_start:
+            scheduler.start()
+            mock_start.assert_called_once()
+
+    def test_stop_shuts_down_scheduler(self, db):
+        scheduler = PeriodicReportScheduler(db)
+        with patch.object(scheduler.scheduler, "shutdown") as mock_shutdown:
+            scheduler.stop()
+            mock_shutdown.assert_called_once_with(wait=False)
 
     def test_start_default_schedule(self, db):
         scheduler = PeriodicReportScheduler(db)

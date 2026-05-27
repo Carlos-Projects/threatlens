@@ -76,6 +76,35 @@ class TestCLI:
                 result = runner.invoke(app, ["correlate"])
             assert result.exit_code == 0
 
+    def test_report_daily_with_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            from threatlens.database import Database
+
+            db = Database(db_path=str(db_path))
+            db.initialize()
+            from threatlens.models import RawSignal, Severity, SignalSource
+            from mcp_taxonomy import AttackCategory, Confidence
+
+            db.save_signals(
+                [
+                    RawSignal(
+                        source=SignalSource.MCPGUARD,
+                        source_id="rep-sig-1",
+                        category=AttackCategory.INJECTION,
+                        severity=Severity.HIGH,
+                        confidence=Confidence.HIGH,
+                        title="Report test signal",
+                    ),
+                ]
+            )
+            db.close()
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["report", "--report-type", "daily"])
+            assert result.exit_code == 0
+            assert "Signals:" in result.output or "Report:" in result.output
+
     def test_report_daily_no_signals(self):
         with tempfile.TemporaryDirectory() as tmp:
             db_path = Path(tmp) / "test.db"
@@ -137,3 +166,119 @@ class TestCLI:
             with patch("threatlens.cli._load_config", return_value=config):
                 result = runner.invoke(app, ["enrich"])
             assert result.exit_code == 0
+
+    def test_enrich_with_cve_references(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {
+                "database": {"path": str(db_path)},
+                "enrichment": {"cve": {"enabled": True, "nvd_api_key": ""}},
+            }
+            from threatlens.database import Database
+
+            db = Database(db_path=str(db_path))
+            db.initialize()
+            from threatlens.models import RawSignal, Severity, SignalSource
+            from mcp_taxonomy import AttackCategory, Confidence
+
+            db.save_signals(
+                [
+                    RawSignal(
+                        source=SignalSource.MCPGUARD,
+                        source_id="cve-sig-1",
+                        category=AttackCategory.INJECTION,
+                        severity=Severity.HIGH,
+                        confidence=Confidence.HIGH,
+                        title="Signal with CVE-2024-0001",
+                        description="Reference to CVE-2024-0001 found in logs",
+                    ),
+                ]
+            )
+            db.close()
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["enrich"])
+            assert result.exit_code == 0
+
+    def test_serve_mocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            with (
+                patch("threatlens.cli._load_config", return_value=config),
+                patch("uvicorn.run") as mock_uvicorn,
+            ):
+                result = runner.invoke(app, ["serve", "--host", "0.0.0.0", "--port", "9090"])
+            assert result.exit_code == 0
+            mock_uvicorn.assert_called_once()
+            args = mock_uvicorn.call_args[1]
+            assert args["host"] == "0.0.0.0"
+            assert args["port"] == 9090
+
+    def test_correlate_with_signals(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            from threatlens.database import Database
+
+            db = Database(db_path=str(db_path))
+            db.initialize()
+            from threatlens.models import RawSignal, Severity, SignalSource
+            from mcp_taxonomy import AttackCategory, Confidence
+
+            db.save_signals(
+                [
+                    RawSignal(
+                        source=SignalSource.MCPGUARD,
+                        source_id="corr-sig-1",
+                        category=AttackCategory.INJECTION,
+                        severity=Severity.HIGH,
+                        confidence=Confidence.HIGH,
+                        title="First injection signal",
+                    ),
+                    RawSignal(
+                        source=SignalSource.MCPWN,
+                        source_id="corr-sig-2",
+                        category=AttackCategory.INJECTION,
+                        severity=Severity.HIGH,
+                        confidence=Confidence.HIGH,
+                        title="Second injection signal",
+                    ),
+                ]
+            )
+            db.close()
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["correlate"])
+            assert result.exit_code == 0
+            assert "Correlated Events" in result.output
+            assert "Alerts Generated" in result.output
+            assert "Campaigns Detected" in result.output
+            assert "Unique TTPs" in result.output
+
+    def test_correlate_with_alerts_and_campaigns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db_path = Path(tmp) / "test.db"
+            config = {"database": {"path": str(db_path)}}
+            from threatlens.database import Database
+
+            db = Database(db_path=str(db_path))
+            db.initialize()
+            from threatlens.models import RawSignal, Severity, SignalSource
+            from mcp_taxonomy import AttackCategory, Confidence
+
+            signals = [
+                RawSignal(
+                    source=SignalSource.MCPGUARD,
+                    source_id=f"camp-sig-{i}",
+                    category=AttackCategory.RCE,
+                    severity=Severity.CRITICAL,
+                    confidence=Confidence.CERTAIN,
+                    title=f"RCE signal {i}",
+                )
+                for i in range(5)
+            ]
+            db.save_signals(signals)
+            db.close()
+            with patch("threatlens.cli._load_config", return_value=config):
+                result = runner.invoke(app, ["correlate"])
+            assert result.exit_code == 0
+            assert "Alerts:" in result.output or "Campaigns:" in result.output

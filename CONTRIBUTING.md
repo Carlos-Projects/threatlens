@@ -35,4 +35,8 @@ python -m pytest tests/ -v --cov=threatlens
 
 ## Release Process
 
-See `.opencode/skills/release-playbook`
+1. Update version in `src/threatlens/_version.py` and `pyproject.toml`
+2. Update `CHANGELOG.md`
+3. Run full test suite: `hatch run check`
+4. Build: `hatch build`
+5. Publish: `hatch publish`
