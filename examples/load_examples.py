@@ -6,10 +6,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from threatlens.aggregator import Aggregator
-from threatlens.database import Database
-from threatlens.models import RawSignal, Severity, SignalSource, Alert
 from mcp_taxonomy import AttackCategory, Confidence
+
+from threatlens.database import Database
+from threatlens.models import RawSignal, Severity, SignalSource
 
 
 def load_examples(db: Database, examples_dir: str = "examples") -> int:
@@ -127,11 +127,10 @@ def load_examples(db: Database, examples_dir: str = "examples") -> int:
 
 
 def create_demo_alerts(db: Database) -> int:
-    from threatlens.correlation import CorrelationEngine
     from threatlens.alerts.generator import AlertGenerator
+    from threatlens.correlation import CorrelationEngine
 
     signals_data = db.get_signals(limit=500)
-    import json as _json
 
     signals = []
     if signals_data:
