@@ -91,8 +91,10 @@ class TestAPIKeyMiddleware:
     @pytest.mark.asyncio
     async def test_web_page_with_valid_cookie(self, app_with_auth):
         transport = ASGITransport(app=app_with_auth)
-        async with AsyncClient(transport=transport, base_url="http://test") as client:
-            resp = await client.get("/", cookies={"token": "test-key-123"})
+        async with AsyncClient(
+            transport=transport, base_url="http://test", cookies={"token": "test-key-123"}
+        ) as client:
+            resp = await client.get("/")
             assert resp.status_code == 200
 
     @pytest.mark.asyncio

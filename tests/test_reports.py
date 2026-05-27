@@ -99,6 +99,46 @@ class TestReportGenerator:
         assert report.total_signals == 10
         assert len(report.recommendations) > 0
 
+    def test_compute_top_ttps_with_events(self):
+        gen = ReportGenerator()
+        event = CorrelatedEvent(
+            id="e1",
+            signals=[_sig("s1")],
+            correlation_type="test",
+            correlation_score=50,
+            title="Test",
+            description="",
+            ttps=[{"id": "AML.T0051"}, {"id": "AML.T0051"}],
+        )
+        top = gen._compute_top_ttps([], [event])
+        assert len(top) == 1
+        assert top[0]["ttp_id"] == "AML.T0051"
+
+    def test_recommendations_critical_count(self):
+        gen = ReportGenerator()
+        recs = gen._generate_recommendations(alerts=[], campaigns=[], severity_dist={"critical": 3})
+        assert any("critical" in r.lower() for r in recs)
+
+    def test_recommendations_high_alert_volume(self):
+        gen = ReportGenerator()
+        from threatlens.models import Alert
+
+        high_alerts = [
+            Alert(
+                id=f"a{i}",
+                title="High",
+                description="",
+                severity=Severity.HIGH,
+                correlation_ids=[],
+                signal_ids=[],
+                ttps=[],
+                enriched={},
+            )
+            for i in range(6)
+        ]
+        recs = gen._generate_recommendations(alerts=high_alerts, campaigns=[], severity_dist={})
+        assert any("alert volume" in r.lower() for r in recs)
+
     def test_generate_saves_to_db(self, db):
         gen = ReportGenerator(db=db)
         report = gen.generate(
@@ -170,3 +210,21 @@ class TestExecutiveReportGenerator:
             period_label="Q1 2025",
         )
         assert "Q1 2025" in report.executive_summary
+
+    def test_executive_with_many_critical_alerts(self):
+        gen = ExecutiveReportGenerator()
+        alerts = [
+            Alert(
+                id=f"a{i}",
+                title="Critical",
+                description="",
+                severity=Severity.CRITICAL,
+                correlation_ids=[],
+                signal_ids=[],
+                ttps=[],
+                enriched={},
+            )
+            for i in range(6)
+        ]
+        report = gen.generate(signals=[], alerts=alerts, campaigns=[])
+        assert any("EMERGENCY" in r for r in report.recommendations)

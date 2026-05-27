@@ -69,6 +69,16 @@ class TestExternalClient:
             assert len(signals) == 1
             assert signals[0].source_id == "CVE-2025-0001"
 
+    @pytest.mark.asyncio
+    async def test_fetch_cves_with_api_key(self):
+        client = ExternalClient(nvd_api_key="test-key")
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = {"vulnerabilities": []}
+        mock_client = _mock_async_client(get_return=mock_resp)
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            signals = await client.fetch_cves(keywords=["test"])
+            assert signals == []
+
     def test_cve_to_signal_severity_mapping(self):
         from threatlens.sources.external import _cve_to_signal
 

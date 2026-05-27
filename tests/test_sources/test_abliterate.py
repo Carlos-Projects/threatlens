@@ -58,3 +58,27 @@ class TestAbliterateClient:
         signals = await client.fetch()
         assert len(signals) == 1
         assert signals[0].category.value == "misconfiguration"
+
+    @pytest.mark.asyncio
+    async def test_fetch_access_denied(self):
+        import os
+
+        saved = os.environ.get("PYTEST_CURRENT_TEST")
+        os.environ.pop("PYTEST_CURRENT_TEST", None)
+        try:
+            client = AbliterateClient(scan_dir="/etc")
+            signals = await client.fetch()
+            assert signals == []
+        finally:
+            if saved:
+                os.environ["PYTEST_CURRENT_TEST"] = saved
+
+    @pytest.mark.asyncio
+    async def test_fetch_invalid_json(self):
+        import tempfile
+
+        tmp = tempfile.mkdtemp()
+        Path(tmp, "bad.json").write_text("not json")
+        client = AbliterateClient(scan_dir=tmp)
+        signals = await client.fetch()
+        assert signals == []

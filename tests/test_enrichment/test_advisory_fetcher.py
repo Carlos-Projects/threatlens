@@ -77,3 +77,22 @@ class TestAdvisoryFetcher:
     def test_get_severity_empty(self):
         sev = self.fetcher._get_severity({})
         assert sev == "UNKNOWN"
+
+    @pytest.mark.asyncio
+    async def test_query_osv_success(self):
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = {
+            "vulns": [
+                {
+                    "id": "GHSA-xxxx",
+                    "summary": "Test vuln",
+                    "aliases": ["CVE-2025-0001"],
+                    "severity": [],
+                }
+            ]
+        }
+        mock_client = _mock_async_client(post_return=mock_resp)
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await self.fetcher.query_osv("flask")
+            assert len(result) == 1
+            assert result[0]["id"] == "GHSA-xxxx"

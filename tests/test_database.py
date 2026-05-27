@@ -172,6 +172,59 @@ class TestDatabase:
         results = db.get_signals(severity="low")
         assert all(s["severity"] == "low" for s in results)
 
+    def test_save_duplicate_source_id(self, db):
+        sig1 = RawSignal(
+            source=SignalSource.MCPGUARD,
+            source_id="dup-id",
+            category=AttackCategory.INJECTION,
+            severity=Severity.HIGH,
+            confidence=Confidence.HIGH,
+            title="First",
+        )
+        sig2 = RawSignal(
+            source=SignalSource.MCPGUARD,
+            source_id="dup-id",
+            category=AttackCategory.INJECTION,
+            severity=Severity.HIGH,
+            confidence=Confidence.HIGH,
+            title="Second (duplicate)",
+        )
+        db.save_signals([sig1, sig2])
+        results = db.get_signals(source="mcpguard")
+        assert len(results) == 1
+
+    def test_get_signals_filter_by_category(self, db):
+        sig = RawSignal(
+            source=SignalSource.PALISADE,
+            source_id="cat-test",
+            category=AttackCategory.JAILBREAK,
+            severity=Severity.HIGH,
+            confidence=Confidence.HIGH,
+            title="Jailbreak signal",
+        )
+        db.save_signals([sig])
+        results = db.get_signals(category="jailbreak")
+        assert all(s["category"] == "jailbreak" for s in results)
+
+    def test_get_reports_filter_by_type(self, db):
+        from threatlens.models import ThreatReport
+
+        daily = ThreatReport(
+            id="r1", report_type="daily", title="Daily", summary="", period_start="", period_end=""
+        )
+        weekly = ThreatReport(
+            id="r2",
+            report_type="weekly",
+            title="Weekly",
+            summary="",
+            period_start="",
+            period_end="",
+        )
+        db.save_report(daily)
+        db.save_report(weekly)
+        results = db.get_reports(report_type="daily")
+        assert all(r["report_type"] == "daily" for r in results)
+
     def test_signals_pagination(self, db):
         signals = [
             RawSignal(

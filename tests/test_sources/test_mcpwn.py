@@ -89,6 +89,25 @@ class TestValidateSourcePath:
         allowed = Path(tempfile.mkdtemp())
         assert _validate_source_path(allowed) is True
 
+    def test_allowed_path_without_pytest_env(self):
+        import os
+
+        saved = os.environ.get("PYTEST_CURRENT_TEST")
+        os.environ.pop("PYTEST_CURRENT_TEST", None)
+        try:
+            from threatlens.sources.mcpwn import ALLOWED_SOURCE_DIRS
+
+            for d in ALLOWED_SOURCE_DIRS:
+                if d.exists():
+                    assert _validate_source_path(d) is True
+                    break
+            else:
+                Path("~/.mcpwn").expanduser().mkdir(parents=True, exist_ok=True)
+                assert _validate_source_path(Path("~/.mcpwn").expanduser()) is True
+        finally:
+            if saved:
+                os.environ["PYTEST_CURRENT_TEST"] = saved
+
     def test_denied_path(self):
         saved = os.environ.get("PYTEST_CURRENT_TEST")
         os.environ.pop("PYTEST_CURRENT_TEST", None)

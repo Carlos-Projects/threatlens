@@ -23,6 +23,16 @@ class TestCVELookup:
         assert lookup.api_key == "test-key"
 
     @pytest.mark.asyncio
+    async def test_lookup_with_api_key(self):
+        lookup = CVELookup(api_key="test-key")
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = {"vulnerabilities": []}
+        mock_client = _mock_async_client(get_return=mock_resp)
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await lookup.lookup("CVE-2025-9999")
+            assert result is None
+
+    @pytest.mark.asyncio
     async def test_lookup_network_error(self):
         lookup = CVELookup()
         mock_client = _mock_async_client()

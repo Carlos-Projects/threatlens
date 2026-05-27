@@ -48,3 +48,21 @@ class TestTemporalAnalyzer:
 
     def test_empty_clusters(self):
         assert self.analyzer.find_temporal_clusters([]) == []
+
+    def test_burst_window_break(self):
+        signals = [
+            _make_signal("s0", minutes_ago=0),
+            _make_signal("s1", minutes_ago=10),
+            _make_signal("s2", minutes_ago=200),
+        ]
+        bursts = self.analyzer.find_bursts(signals, threshold=1)
+        assert len(bursts) >= 1
+
+    def test_temporal_clusters_with_gap(self):
+        signals = [
+            _make_signal("s0", minutes_ago=0),
+            _make_signal("s1", minutes_ago=100),
+            _make_signal("s2", minutes_ago=200),
+        ]
+        clusters = self.analyzer.find_temporal_clusters(signals, max_gap_minutes=30)
+        assert len(clusters) == 3

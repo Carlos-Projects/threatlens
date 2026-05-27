@@ -148,7 +148,7 @@ class Database:
         for sig in signals:
             try:
                 conn.execute(
-                    """INSERT OR IGNORE INTO signals
+                    """INSERT INTO signals
                     (source, source_id, category, severity, confidence, title,
                      description, recommendation, detection_method, target,
                      snippet, raw_data, timestamp, blocked, risk_score, tags)
