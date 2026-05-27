@@ -1,0 +1,23 @@
+<svg width="1280" height="640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect x="40" y="40" width="1200" height="560" rx="20" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.3"/>
+  <text x="640" y="200" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#ffffff" text-anchor="middle">ThreatLens</text>
+  <text x="640" y="280" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#94a3b8" text-anchor="middle">Threat intelligence aggregation &amp; correlation engine</text>
+  <text x="640" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#94a3b8" text-anchor="middle">for AI/MCP security</text>
+  <circle cx="400" cy="440" r="8" fill="#3b82f6"/>
+  <text x="420" y="448" font-family="monospace" font-size="20" fill="#e2e8f0">pip install threatlens-ai</text>
+  <circle cx="400" cy="490" r="8" fill="#8b5cf6"/>
+  <text x="420" y="498" font-family="monospace" font-size="20" fill="#e2e8f0">100% test coverage — 261 tests</text>
+  <circle cx="400" cy="540" r="8" fill="#06b6d4"/>
+  <text x="420" y="548" font-family="monospace" font-size="20" fill="#e2e8f0">MITRE ATLAS correlation — Multi-source ingestion</text>
+</svg>

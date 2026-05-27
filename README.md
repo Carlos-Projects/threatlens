@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/Carlos-Projects/threatlens/actions/workflows/ci.yml/badge.svg)](https://github.com/Carlos-Projects/threatlens/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/threatlens-ai.svg)](https://pypi.org/project/threatlens-ai/)
+[![Downloads](https://img.shields.io/pypi/dm/threatlens-ai.svg)](https://pypi.org/project/threatlens-ai/)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/Carlos-Projects/threatlens)
 [![Docs](https://img.shields.io/badge/docs-github.io-blue.svg)](https://carlos-projects.github.io/threatlens/)
@@ -183,7 +184,11 @@ Start the server:
 threatlens serve --host 0.0.0.0 --port 8080
 ```
 
-### REST API Endpoints
+### REST API
+
+Interactive API docs available at [/docs](http://localhost:8080/docs) when the server is running (powered by FastAPI OpenAPI/Swagger).
+
+#### Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
