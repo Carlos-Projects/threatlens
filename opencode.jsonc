@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Keep OpenCode pointed at the shared harness.
+  // Do not duplicate project memory here; use HARNESS.yml and progress/current.md.
+  "instructions": [
+    "AGENTS.md",
+    "HARNESS.yml",
+    "progress/current.md"
+  ],
+
+  "command": {
+    "harness-status": {
+      "template": "Read AGENTS.md, HARNESS.yml, and progress/current.md. Summarize current goal, known good commands, risks, and next step without reading the full repo.",
+      "description": "Show harness-guided project status"
+    },
+    "harness-check": {
+      "template": "Run the repository harness check script if present. Verify AGENTS.md, HARNESS.yml, progress/current.md, docs/architecture.md, docs/verification.md, and report any secret hygiene risks.",
+      "description": "Validate harness files and secret hygiene"
+    },
+    "minimal-verify": {
+      "template": "Use HARNESS.yml and docs/verification.md to run the smallest relevant test/lint/build check for the current change. Save a short summary to progress/current.md.",
+      "description": "Run minimal verification from harness"
+    }
+  }
+}
