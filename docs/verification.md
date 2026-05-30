@@ -24,3 +24,4 @@ Run this before claiming a change works:
 
 Paste only summaries in chat. Keep full outputs in `reports/` when useful.
 
+

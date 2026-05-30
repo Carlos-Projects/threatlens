@@ -28,3 +28,4 @@ rules:
     action: require_approval
     description: "A task cannot be closed without tests/checks or an explicit reason."
 
+
