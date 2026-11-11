@@ -107,7 +107,22 @@ def create_app(
         category: str | None = None,
         limit: int = 100,
         offset: int = 0,
+        cursor: int | None = None,
     ):
+        if cursor is not None:
+            # Cursor pagination for infinite scroll: fetch one extra row to
+            # know whether another page exists. Pass cursor=0 for the first
+            # page, then pass each response's next_cursor (null when done).
+            rows = _db.get_signals(
+                source=source,
+                severity=severity,
+                category=category,
+                limit=limit + 1,
+                cursor=cursor,
+            )
+            page = rows[:limit]
+            next_cursor = page[-1]["id"] if len(rows) > limit else None
+            return {"signals": page, "next_cursor": next_cursor}
         return _db.get_signals(
             source=source,
             severity=severity,

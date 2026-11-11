@@ -287,6 +287,7 @@ class Database:
         category: str | None = None,
         limit: int = 100,
         offset: int = 0,
+        cursor: int | None = None,
     ) -> list[dict[str, Any]]:
         conn = self.connect()
         query = "SELECT * FROM signals WHERE 1=1"
@@ -300,7 +301,17 @@ class Database:
         if category:
             query += " AND category = ?"
             params.append(category)
-        query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+        if cursor is not None:
+            # Cursor (keyset) pagination: stable ordering by id, returning
+            # only rows older than the cursor so pages never overlap or
+            # shift when new signals are inserted. A cursor of 0 (or less)
+            # means "start from the newest row".
+            if cursor > 0:
+                query += " AND id < ?"
+                params.append(cursor)
+            query += " ORDER BY id DESC LIMIT ? OFFSET ?"
+        else:
+            query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         rows = conn.execute(query, params).fetchall()
         return [dict(r) for r in rows]
