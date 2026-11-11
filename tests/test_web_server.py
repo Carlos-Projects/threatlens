@@ -186,3 +186,75 @@ class TestCreateApp:
     def test_create_with_force_https(self):
         app = create_app(force_https=True)
         assert app.title == "ThreatLens"
+
+
+class TestSignalsCursorPagination:
+    """Cursor-based pagination for GET /api/v1/signals (issue #6)."""
+
+    @pytest.fixture
+    def paged_client(self):
+        tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        database = Database(db_path=tmp.name)
+        database.initialize()
+
+        from mcp_taxonomy import AttackCategory, Confidence
+
+        from threatlens.models import RawSignal, Severity, SignalSource
+
+        database.save_signals(
+            [
+                RawSignal(
+                    source=SignalSource.MCPGUARD,
+                    source_id=f"page-sig-{i}",
+                    category=AttackCategory.INJECTION,
+                    severity=Severity.HIGH,
+                    confidence=Confidence.HIGH,
+                    title=f"Paged signal {i}",
+                )
+                for i in range(5)
+            ]
+        )
+        tmp.close()
+        app = create_app(db=database)
+        client = AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
+        yield client
+        database.close()
+        Path(tmp.name).unlink(missing_ok=True)
+
+    @pytest.mark.asyncio
+    async def test_cursor_pages_cover_all_signals_without_overlap(self, paged_client):
+        seen: list[int] = []
+        cursor: int | None = 0
+        pages = 0
+        while cursor is not None:
+            response = await paged_client.get(
+                "/api/v1/signals", params={"limit": 2, "cursor": cursor}
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert set(data) == {"signals", "next_cursor"}
+            ids = [s["id"] for s in data["signals"]]
+            if cursor > 0:
+                assert all(i < cursor for i in ids)
+            seen.extend(ids)
+            cursor = data["next_cursor"]
+            pages += 1
+            assert pages <= 5, "pagination did not terminate"
+        assert len(seen) == 5
+        assert len(set(seen)) == 5, "pages overlapped"
+
+    @pytest.mark.asyncio
+    async def test_cursor_next_cursor_is_null_on_last_page(self, paged_client):
+        response = await paged_client.get(
+            "/api/v1/signals", params={"limit": 100, "cursor": 0}
+        )
+        data = response.json()
+        assert len(data["signals"]) == 5
+        assert data["next_cursor"] is None
+
+    @pytest.mark.asyncio
+    async def test_cursor_past_the_end_returns_empty_page(self, paged_client):
+        first = (await paged_client.get("/api/v1/signals")).json()
+        oldest = min(s["id"] for s in first)
+        response = await paged_client.get("/api/v1/signals", params={"cursor": oldest})
+        assert response.json() == {"signals": [], "next_cursor": None}
